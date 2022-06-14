@@ -1,5 +1,5 @@
 
-const honeyFile = 'data/honey.csv';
+const honeyFile = 'honey_withoutUS.csv';
 const numbersFile = 'data/numbers.csv';
 const stressorsFile = 'data/stressors.csv';
 
@@ -116,9 +116,9 @@ function drawMap(data, svg) {
             return Number(d.key) === currentYear
         }).map(d => d.values)[0].map(d => d['Honey producing colonies']);
 
-        var colorScale = d3.scaleThreshold()
+        var colorScale = d3.scaleLinear()
             .domain(d3.extent(domain))
-            .range(d3.schemeBlues[7]);
+            .range(['#f9c901', '#985b10']);
 
         svg.selectAll("path")
             .data(json.features)
