@@ -7,12 +7,14 @@ const svg = d3.select("#chart-area").append("svg")
     .attr("width", width)
     .attr("height", 1000)
 
-const startYear = +document.getElementById("slider").value;
+let startYear = +document.getElementById("slider").value;
+
 const toolTip = d3.tip()
     .attr('class', 'd3-tip')
     .html(function (_, data) {
         if (data.properties.data) {
             const honeyData = data.properties.data;
+            startYear = +document.getElementById("slider").value;
             if (honeyData && honeyData.get(startYear) && honeyData.get(startYear).length > 0) {
                 const row = honeyData.get(startYear)[0];
                 return `<strong>${data.properties.name}</strong>:<br>${row['Honey producing colonies']} honey producing colonies`;
