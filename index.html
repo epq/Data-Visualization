@@ -11,6 +11,7 @@
         body {
         position: absolute;
         font-family: "Proxima Nova", "Montserrat", sans-serif;
+        margin-left: 30px;
     }
         .d3-tip {
         line-height: 1;
@@ -20,15 +21,15 @@
         border-radius: 2px;
     }
 	</style>
-    <select id="mapSelectButton"></select>
+    <h1>Honey Bees and Honey Production in the US (1989-2019)</h1>
+    <strong>View: </strong> <select id="mapSelectButton"></select>
     <div class="slider">
         <input type="range" min="1989" max="2019" value="1989" class="slider" id="slider">
         <br>
-        <p>
-            <strong>Year: </strong><span id="slider_value">1989</span>
-        </p>
+        <strong>Year: </strong><span id="slider_value">1989</span>
     </div>
 	<div id="chart-area"></div>
+    <h2>Honey Production</h2>
     <strong>State: </strong><select id="selectButton"></select>
     <div id="my_dataviz"></div>
     <script src="https://d3js.org/d3.v6.js"></script>

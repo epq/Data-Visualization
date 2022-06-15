@@ -1,6 +1,4 @@
 const honeyFile = 'honey_withoutUS.csv';
-const numbersFile = 'data/numbers.csv';
-const stressorsFile = 'data/stressors.csv';
 const usaMapFile = 'data/us-states.json';
 const svg = d3.select("#chart-area").append("svg")
     .attr("width", 1500)
@@ -40,15 +38,15 @@ const toolTip = d3.tip()
                 }
                 return dataString;
             } else {
-                return 'No data';
+                return `<strong>${data.properties.name}</strong><br> No data`;
             }
         } else {
-            return 'No data';
+            return `<strong>${data.properties.name}</strong><br> No data`;
         }
     });
 
-Promise.all([d3.csv(honeyFile), d3.csv(numbersFile), d3.csv(stressorsFile), d3.json(usaMapFile)]).then(files => {
-    const [honeyData, numbersData, stressorsData, mapJson] = files;
+Promise.all([d3.csv(honeyFile), d3.json(usaMapFile)]).then(files => {
+    const [honeyData, mapJson] = files;
     const honey = honeyData.map(d => {
         for (prop in d) {
             if (prop !== 'State') {
@@ -57,23 +55,6 @@ Promise.all([d3.csv(honeyFile), d3.csv(numbersFile), d3.csv(stressorsFile), d3.j
         }
         return d;
     });
-    const numbers = numbersData.map(d => {
-        for (prop in d) {
-            if (prop !== 'State' && prop !== 'Year') {
-                d[prop] = Number(d[prop]);
-            }
-        }
-        return d;
-    });
-    const stressors = stressorsData.map(d => {
-        for (prop in d) {
-            if (prop !== 'State' && prop !== 'Year' && prop !== 'Diseases') {
-                d[prop] = Number(d[prop]);
-            }
-        }
-        return d;
-    });
-
     ready(honey, mapJson);
 }).catch(err => {
     console.log(err);
@@ -103,16 +84,16 @@ function ready(honeyData, mapJson) {
 }
 
 function drawUSA(honeyData, mapJson) {
-    var width = 960;
-    var height = 500;
+    const width = 960;
+    const height = 500;
 
     // D3 Projection
-    var projection = d3.geoAlbersUsa()
+    const projection = d3.geoAlbersUsa()
         .translate([width / 2, height / 2])    // translate to center of screen
         .scale([1000]);          // scale things down so see entire US
 
     // Define path generator
-    var path = d3.geoPath()       // path generator that will convert GeoJSON to SVG paths
+    const path = d3.geoPath()       // path generator that will convert GeoJSON to SVG paths
         .projection(projection);  // tell path generator to use albersUsa projection
 
     // returns nested Map grouped by states and then years

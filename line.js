@@ -1,10 +1,10 @@
 //source: https://d3-graph-gallery.com/graph/line_filter.html 
 
-// const honeyFile = 'data/honey.csv';
+const honeyDataFile = 'data/honey.csv';
 
 // set the dimensions and margins of the graph
 // Viz 1: Line Chart
-const margin = {top: 20, right: 500, bottom: 30, left: 60},
+const margin = {top: 20, right: 0, bottom: 30, left: 60},
     width =  1000 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
@@ -17,7 +17,7 @@ const lineSvg = d3.select("#my_dataviz")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
 //Read the data
-d3.csv(honeyFile).then(function(data) {
+d3.csv(honeyDataFile).then(function(data) {
 
     // List of groups (here I have one group per column)
     const allGroup = new Set(data.map(d => d.State))
