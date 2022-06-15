@@ -2,23 +2,21 @@ const honeyFile = 'honey_withoutUS.csv';
 const numbersFile = 'data/numbers.csv';
 const stressorsFile = 'data/stressors.csv';
 const usaMapFile = 'data/us-states.json';
-const width = 1500;
-const height = 1000;
 const svg = d3.select("#chart-area").append("svg")
-    .attr("width", width)
-    .attr("height", height)
+    .attr("width", 1500)
+    .attr("height", 500)
 
 let selectedYear = +document.getElementById("slider").value;
 
 const allGroup = ['Honey producing colonies', 'Yield per colony', 'Production', 'Stocks December 15', 'Average price per pound', 'Value of production'];
-d3.select("#selectButton")
+d3.select("#mapSelectButton")
     .selectAll('myOptions')
     .data(allGroup)
     .enter()
     .append('option')
     .text(function (d) { return d; }) // text showed in the menu
     .attr("value", function (d) { return d; }) // corresponding value returned by the button
-let selectedAttribute = document.getElementById("selectButton").value;
+let selectedAttribute = document.getElementById("mapSelectButton").value;
 
 const toolTip = d3.tip()
     .attr('class', 'd3-tip')
@@ -74,11 +72,9 @@ Promise.all([d3.csv(honeyFile), d3.csv(numbersFile), d3.csv(stressorsFile), d3.j
             }
         }
         return d;
-
     });
 
     ready(honey, mapJson);
-
 }).catch(err => {
     console.log(err);
 });
@@ -96,7 +92,7 @@ function ready(honeyData, mapJson) {
         });
 
     // When the button is changed, run the updateChart function
-    d3.select("#selectButton").on("change", function (event, d) {
+    d3.select("#mapSelectButton").on("change", function (event, d) {
         // recover the option that has been chosen
         const selectedOption = d3.select(this).property("value")
         // run the updateChart function with this selected option

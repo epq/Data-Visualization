@@ -20,7 +20,7 @@
         border-radius: 2px;
     }
 	</style>
-    <select id="selectButton"></select>
+    <select id="mapSelectButton"></select>
     <div class="slider">
         <input type="range" min="1989" max="2019" value="1989" class="slider" id="slider">
         <br>
@@ -28,12 +28,13 @@
             <strong>Year: </strong><span id="slider_value">1989</span>
         </p>
     </div>
-
 	<div id="chart-area"></div>
-	<div id="map"></div>
+    <strong>State: </strong><select id="selectButton"></select>
+    <div id="my_dataviz"></div>
     <script src="https://d3js.org/d3.v6.js"></script>
     <script src="https://unpkg.com/d3-v6-tip@1.0.6/build/d3-v6-tip.js"></script>
 	<script src="main.js"></script>
+    <script src="line.js"></script>
     <script src="stateToAbbr.js"></script>
 </body>
 </html>

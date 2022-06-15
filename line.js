@@ -1,14 +1,15 @@
 //source: https://d3-graph-gallery.com/graph/line_filter.html 
 
-const honeyFile = 'data/honey.csv';
+// const honeyFile = 'data/honey.csv';
+
 // set the dimensions and margins of the graph
 // Viz 1: Line Chart
-const margin = {top: 500, right: 500, bottom: 30, left: 60},
+const margin = {top: 20, right: 500, bottom: 30, left: 60},
     width =  1000 - margin.left - margin.right,
-    height = 900 - margin.top - margin.bottom;
+    height = 500 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
-const svg = d3.select("#my_dataviz")
+const lineSvg = d3.select("#my_dataviz")
   .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -39,19 +40,21 @@ d3.csv(honeyFile).then(function(data) {
     const x = d3.scaleLinear()
       .domain(d3.extent(data, function(d) { return d.Year; }))
       .range([ 0, width ]);
-    svg.append("g")
+    lineSvg.append("g")
       .attr("transform", `translate(0, ${height})`)
       .call(d3.axisBottom(x).ticks(7));
 
     // Add Y axis
+    // const startingProduction = data.filter(d => d.State === 'AL');
+
     const y = d3.scaleLinear()
       .domain([0, d3.max(data, function(d) { return +d.Production; })])
       .range([ height, 0 ]);
-    svg.append("g")
+    let yAxis = lineSvg.append("g")
       .call(d3.axisLeft(y));
 
     // Initialize line with first group of the list
-    const line = svg
+    const line = lineSvg
       .append('g')
       .append("path")
         .datum(data.filter(function(d){return d.State=="AL"}))
@@ -68,6 +71,10 @@ d3.csv(honeyFile).then(function(data) {
 
       // Create new data with the selection?
       const dataFilter = data.filter(function(d){return d.State==selectedGroup})
+      // const newY = d3.scaleLinear()
+      //   .domain([0, d3.max(dataFilter, function (d) { return +d.Production; })])
+      //   .range([height, 0]);
+      //   yAxis.transition().duration(100).call(d3.axisLeft(newY));
 
       // Give these new data to update line
       line
