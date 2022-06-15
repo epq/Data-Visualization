@@ -1,4 +1,4 @@
-const honeyFile = 'honey_withoutUS.csv';
+const honeyFile = 'data/honey_withoutUS.csv';
 const usaMapFile = 'data/us-states.json';
 const svg = d3.select("#chart-area").append("svg")
     .attr("width", 1500)
