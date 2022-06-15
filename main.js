@@ -1,4 +1,3 @@
-
 const honeyFile = 'honey_withoutUS.csv';
 const numbersFile = 'data/numbers.csv';
 const stressorsFile = 'data/stressors.csv';
@@ -30,9 +29,6 @@ Promise.all([d3.csv(honeyFile), d3.csv(numbersFile), d3.csv(stressorsFile)]).the
         return d;
 
     });
-    console.log(honey[0]);
-    console.log(numbers[0]);
-    console.log(stressors[0]);
 
     const svg = d3.select("#chart-area").append("svg")
         .attr("width", 1500)
@@ -78,8 +74,7 @@ function drawLineChart(data, svg) {
 
 
 function drawMap(data, svg) {
-    //Width and height of map
-    d3.json("data/us-states.json").then(drawUSA);
+    d3.json("data/us-states.json").then(drawUSA).catch(err => console.error(err));
 
     function drawUSA(json) {
         var width = 960;
@@ -94,33 +89,38 @@ function drawMap(data, svg) {
         var path = d3.geoPath()       // path generator that will convert GeoJSON to SVG paths
             .projection(projection);  // tell path generator to use albersUsa projection
 
-        const nestDataByStateAndYear = d3.nest().key(d => d.State).key(d => d.Year).entries(data);
+        // returns nested Map grouped by states and then years
+        const nestDataByStateAndYear = d3.group(data, d => d.State, d => d.Year);
 
         // merge json data and honey data
+        // assign data to each state
         for (feature of json.features) {
             const abbr = stateNameToAbbreviation(feature.properties.name);
             if (abbr) {
-                const stateData = nestDataByStateAndYear.filter(d => d.key === abbr);
-                if (stateData.length > 0) {
-                    // console.log(stateData[0].values)
-                    feature.properties.data = stateData[0].values;
+                const stateData = nestDataByStateAndYear.get(abbr);
+                if (stateData && stateData.size > 0) {
+                    feature.properties.data = stateData;
                 }
             }
         }
-        const nestedData = d3.nest()
-            .key(d => d.Year)
-            .entries(data);
-        
+
+        const nestedData = d3.group(data, d => d.Year);
         const currentYear = 2019;
-        const domain = nestedData.filter(d => {
-            return Number(d.key) === currentYear
-        }).map(d => d.values)[0].map(d => d['Honey producing colonies']);
+        const domain = nestedData.get(currentYear).map(d => d['Honey producing colonies']);
 
         var colorScale = d3.scaleLinear()
             .domain(d3.extent(domain))
             .range(['#f9c901', '#985b10']);
 
-        svg.selectAll("path")
+        var mapG = svg.append('g')
+            .attr('id', 'map');
+
+        const tip = d3.tip()
+            .attr('class', 'd3-tip')
+            .html(d => { 
+                return 'test' });
+
+        const paths = mapG.selectAll("path")
             .data(json.features)
             .enter()
             .append("path")
@@ -129,18 +129,20 @@ function drawMap(data, svg) {
             .style("stroke-width", "1")
             .style("fill", function (d) {
                 if (d.properties.data) {
-                const honeyData = d.properties.data;
-                const currentYearData = honeyData.filter(d => Number(d.key) === currentYear)
-                if (currentYearData.length > 0) {
-                   const currentYearDataValues = currentYearData[0].values[0];
-                   console.log(currentYearDataValues['Honey producing colonies']);
-                   return colorScale(currentYearDataValues['Honey producing colonies']);
+                    const honeyData = d.properties.data;
+                    if (honeyData && honeyData.get(currentYear) && honeyData.get(currentYear).length > 0) {
+                        return colorScale(honeyData.get(currentYear)[0]['Honey producing colonies']);
+                    } else {
+                        return "rgb(213,222,217)";
+                    }
                 } else {
                     return "rgb(213,222,217)";
                 }
-                } else {
-                    return "rgb(213,222,217)";
-                }
-            });
+            })
+            .on('mouseover', tip.show)
+            .on('mouseout', tip.hide)
+
+        mapG.call(tip);
+            // paths.on('mouseover', tip.show).on('mouseout', tip.hide)
     };
 }

@@ -7,10 +7,19 @@
 </head>
 <body>
 	<style>
+        .d3-tip {
+        line-height: 1;
+        padding: 12px;
+        background: rgba(43,43,43, 0.8);
+        color: #fff;
+        border-radius: 2px;
+    }
 	</style>
 	<div id="chart-area"></div>
-	<script src="https://d3js.org/d3.v5.min.js"></script>
+	<div id="map"></div>
+    <script src="https://d3js.org/d3.v6.js"></script>
 	<script src="main.js"></script>
-	<script src="stateToAbbr.js"></script>
+    <script src="stateToAbbr.js"></script>
+    <script src="d3-tip.js"></script>
 </body>
 </html>
