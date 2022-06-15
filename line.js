@@ -40,15 +40,16 @@ d3.csv(honeyFile).then(function(data) {
     const x = d3.scaleLinear()
       .domain(d3.extent(data, function(d) { return d.Year; }))
       .range([ 0, width ]);
+    const formatxAxis = d3.format('.0f');
     lineSvg.append("g")
       .attr("transform", `translate(0, ${height})`)
-      .call(d3.axisBottom(x).ticks(7));
+      .call(d3.axisBottom(x).ticks(7).tickFormat(formatxAxis));
 
     // Add Y axis
-    // const startingProduction = data.filter(d => d.State === 'AL');
+    const startingProduction = data.filter(d => d.State === 'AL');
 
     const y = d3.scaleLinear()
-      .domain([0, d3.max(data, function(d) { return +d.Production; })])
+      .domain([0, d3.max(startingProduction, function(d) { return +d.Production; })])
       .range([ height, 0 ]);
     let yAxis = lineSvg.append("g")
       .call(d3.axisLeft(y));
@@ -71,10 +72,10 @@ d3.csv(honeyFile).then(function(data) {
 
       // Create new data with the selection?
       const dataFilter = data.filter(function(d){return d.State==selectedGroup})
-      // const newY = d3.scaleLinear()
-      //   .domain([0, d3.max(dataFilter, function (d) { return +d.Production; })])
-      //   .range([height, 0]);
-      //   yAxis.transition().duration(100).call(d3.axisLeft(newY));
+      const newY = d3.scaleLinear()
+        .domain([0, d3.max(dataFilter, function (d) { return +d.Production; })])
+        .range([height, 0]);
+        yAxis.transition().duration(100).call(d3.axisLeft(newY));
 
       // Give these new data to update line
       line
@@ -83,7 +84,7 @@ d3.csv(honeyFile).then(function(data) {
           .duration(100)
           .attr("d", d3.line()
             .x(function(d) { return x(d.Year) })
-            .y(function(d) { return y(+d.Production) })
+            .y(function(d) { return newY(+d.Production) })
           )
           .attr("stroke", function(d){ return myColor(selectedGroup) })
     }
