@@ -2,9 +2,10 @@
 
 const honeyFile = 'data/honey.csv';
 // set the dimensions and margins of the graph
-const margin = {top: 10, right: 30, bottom: 30, left: 60},
-    width = 460 - margin.left - margin.right,
-    height = 400 - margin.top - margin.bottom;
+// Viz 1: Line Chart
+const margin = {top: 500, right: 500, bottom: 30, left: 60},
+    width =  1000 - margin.left - margin.right,
+    height = 900 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
 const svg = d3.select("#my_dataviz")
@@ -15,7 +16,7 @@ const svg = d3.select("#my_dataviz")
     .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
 //Read the data
-d3.csv(honeyFile).then( function(data) {
+d3.csv(honeyFile).then(function(data) {
 
     // List of groups (here I have one group per column)
     const allGroup = new Set(data.map(d => d.State))
@@ -87,5 +88,5 @@ d3.csv(honeyFile).then( function(data) {
         // run the updateChart function with this selected option
         update(selectedOption)
     })
-
 })
+
