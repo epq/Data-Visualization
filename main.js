@@ -2,11 +2,23 @@ const honeyFile = 'honey_withoutUS.csv';
 const numbersFile = 'data/numbers.csv';
 const stressorsFile = 'data/stressors.csv';
 const usaMapFile = 'data/us-states.json';
+const width = 1500;
 const svg = d3.select("#chart-area").append("svg")
-    .attr("width", 1500)
+    .attr("width", width)
     .attr("height", 1000)
 
 const startYear = +document.getElementById("slider").value;
+const toolTip = d3.tip()
+    .attr('class', 'd3-tip')
+    .html(function (_, data) {
+        if (data.properties.data) {
+            const honeyData = data.properties.data;
+            if (honeyData && honeyData.get(startYear) && honeyData.get(startYear).length > 0) {
+                const row = honeyData.get(startYear)[0];
+                return `<strong>${data.properties.name}</strong>:<br>${row['Honey producing colonies']} honey producing colonies`;
+            }
+        }
+    });
 
 Promise.all([d3.csv(honeyFile), d3.csv(numbersFile), d3.csv(stressorsFile), d3.json(usaMapFile)]).then(files => {
     const [honeyData, numbersData, stressorsData, mapJson] = files;
@@ -43,7 +55,6 @@ Promise.all([d3.csv(honeyFile), d3.csv(numbersFile), d3.csv(stressorsFile), d3.j
 });
 
 
-
 function ready(honeyData, mapJson) {
     drawUSA(honeyData, mapJson);
     update(startYear, honeyData);
@@ -54,7 +65,6 @@ function ready(honeyData, mapJson) {
             document.getElementById("slider_value").innerHTML = this.value;
         });
 }
-
 
 function drawUSA(honeyData, mapJson) {
     var width = 960;
@@ -87,18 +97,20 @@ function drawUSA(honeyData, mapJson) {
     const mapG = svg.append('g')
         .attr('id', 'map');
 
-    const tip = d3.tip()
-        .attr('class', 'd3-tip')
-        .html(d => {
-            return 'test'
-        });
-
+    mapG.call(toolTip);
     const paths = mapG.selectAll("path")
         .data(mapJson.features)
         .enter()
         .append("path")
         .style("stroke", "#fff")
         .style("stroke-width", "1")
+        .on('mouseover', function (event, d) {
+            const honeyData = d.properties.data;
+            if (honeyData && honeyData.get(startYear) && honeyData.get(startYear).length > 0) {
+                toolTip.show(event, d);
+            }
+        })
+        .on('mouseout', toolTip.hide)
         .attr("d", path)
 };
 
@@ -108,8 +120,9 @@ function update(year, honeyData) {
     const colorScale = d3.scaleLinear()
         .domain(d3.extent(domain))
         .range(['#f9c901', '#985b10']);
+
     svg.selectAll('path')
-    .attr('fill', function(d) {
+        .attr('fill', function (d) {
             if (d.properties.data) {
                 const honeyData = d.properties.data;
                 if (honeyData && honeyData.get(year) && honeyData.get(year).length > 0) {
@@ -120,6 +133,5 @@ function update(year, honeyData) {
             } else {
                 return "rgb(213,222,217)";
             }
-    })
-
+        })
 }
