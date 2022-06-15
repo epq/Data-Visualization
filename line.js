@@ -4,7 +4,7 @@ const honeyDataFile = 'data/honey.csv';
 
 // set the dimensions and margins of the graph
 // Viz 1: Line Chart
-const margin = {top: 20, right: 0, bottom: 60, left: 60},
+const margin = {top: 20, right: 0, bottom: 60, left: 80},
     width =  1000 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
@@ -57,7 +57,7 @@ d3.csv(honeyDataFile).then(function(data) {
     // Y label
     lineSvg.append("text")
       .attr("x", -(height/ 2))
-      .attr("y", -40)
+      .attr("y", -60)
       .attr("font-size", "15px")
       .attr("text-anchor", "middle")
       .attr("transform", "rotate(-90)")
