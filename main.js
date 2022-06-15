@@ -16,7 +16,11 @@ const toolTip = d3.tip()
             if (honeyData && honeyData.get(startYear) && honeyData.get(startYear).length > 0) {
                 const row = honeyData.get(startYear)[0];
                 return `<strong>${data.properties.name}</strong>:<br>${row['Honey producing colonies']} honey producing colonies`;
+            } else {
+                return 'No data';
             }
+        } else {
+            return 'No data';
         }
     });
 
@@ -94,6 +98,31 @@ function drawUSA(honeyData, mapJson) {
         }
     }
 
+    const mouseOver = function (event, d) {
+        toolTip.show(event, d);
+
+        d3.selectAll(".state")
+            .transition()
+            .duration(200)
+            .style("opacity", .5)
+        d3.select(this)
+            .transition()
+            .duration(200)
+            .style("opacity", 1)
+    }
+
+    const mouseOut = function (event, d) {
+        toolTip.hide(event, d);
+        d3.selectAll(".state")
+            .transition()
+            .duration(200)
+            .style("opacity", .8)
+            .style("stroke", "white")
+        d3.select(this)
+            .transition()
+            .duration(200)
+    }
+
     const mapG = svg.append('g')
         .attr('id', 'map');
 
@@ -104,14 +133,10 @@ function drawUSA(honeyData, mapJson) {
         .append("path")
         .style("stroke", "#fff")
         .style("stroke-width", "1")
-        .on('mouseover', function (event, d) {
-            const honeyData = d.properties.data;
-            if (honeyData && honeyData.get(startYear) && honeyData.get(startYear).length > 0) {
-                toolTip.show(event, d);
-            }
-        })
-        .on('mouseout', toolTip.hide)
+        .on('mouseover', mouseOver)
+        .on('mouseout', mouseOut)
         .attr("d", path)
+        .attr('class', 'state')
 };
 
 function update(year, honeyData) {
@@ -119,7 +144,7 @@ function update(year, honeyData) {
     const domain = nestedData.get(year).map(d => d['Honey producing colonies']);
     const colorScale = d3.scaleLinear()
         .domain(d3.extent(domain))
-        .range(['#f9c901', '#985b10']);
+        .range(['#ffeca7', '#985b10']);
 
     svg.selectAll('path')
         .attr('fill', function (d) {
