@@ -3,21 +3,44 @@ const numbersFile = 'data/numbers.csv';
 const stressorsFile = 'data/stressors.csv';
 const usaMapFile = 'data/us-states.json';
 const width = 1500;
+const height = 1000;
 const svg = d3.select("#chart-area").append("svg")
     .attr("width", width)
-    .attr("height", 1000)
+    .attr("height", height)
 
-let startYear = +document.getElementById("slider").value;
+let selectedYear = +document.getElementById("slider").value;
+
+const allGroup = ['Honey producing colonies', 'Yield per colony', 'Production', 'Stocks December 15', 'Average price per pound', 'Value of production'];
+d3.select("#selectButton")
+    .selectAll('myOptions')
+    .data(allGroup)
+    .enter()
+    .append('option')
+    .text(function (d) { return d; }) // text showed in the menu
+    .attr("value", function (d) { return d; }) // corresponding value returned by the button
+let selectedAttribute = document.getElementById("selectButton").value;
 
 const toolTip = d3.tip()
     .attr('class', 'd3-tip')
     .html(function (_, data) {
         if (data.properties.data) {
             const honeyData = data.properties.data;
-            startYear = +document.getElementById("slider").value;
-            if (honeyData && honeyData.get(startYear) && honeyData.get(startYear).length > 0) {
-                const row = honeyData.get(startYear)[0];
-                return `<strong>${data.properties.name}</strong>:<br>${row['Honey producing colonies']} honey producing colonies`;
+            selectedYear = +document.getElementById("slider").value;
+            if (honeyData && honeyData.get(selectedYear) && honeyData.get(selectedYear).length > 0) {
+                const row = honeyData.get(selectedYear)[0];
+                let dataString = `<strong>${data.properties.name}</strong><br> ${selectedAttribute}: ${row[`${selectedAttribute}`]}`;
+                if (selectedAttribute === 'Honey producing colonies') {
+                    dataString += `,000`;
+                } else if (selectedAttribute === 'Yield per colony') {
+                    dataString += ' pounds';
+                } else if (selectedAttribute === 'Production' || selectedAttribute === 'Stocks December 15') {
+                    dataString += '000 pounds';
+                } else if (selectedAttribute === 'Average price per pound') {
+                    dataString += ' dollars';
+                } else if (selectedAttribute === 'Value of production') {
+                    dataString += '000 dollars';
+                }
+                return dataString;
             } else {
                 return 'No data';
             }
@@ -63,13 +86,24 @@ Promise.all([d3.csv(honeyFile), d3.csv(numbersFile), d3.csv(stressorsFile), d3.j
 
 function ready(honeyData, mapJson) {
     drawUSA(honeyData, mapJson);
-    update(startYear, honeyData);
+    update(selectedYear, honeyData, selectedAttribute);
 
     d3.select("#slider")
         .on("input", function () {
-            update(+this.value, honeyData);
+            update(+this.value, honeyData, selectedAttribute);
+            selectedYear = +this.value;
             document.getElementById("slider_value").innerHTML = this.value;
         });
+
+    // When the button is changed, run the updateChart function
+    d3.select("#selectButton").on("change", function (event, d) {
+        // recover the option that has been chosen
+        const selectedOption = d3.select(this).property("value")
+        // run the updateChart function with this selected option
+        // update(selectedOption)
+        selectedAttribute = selectedOption;
+        update(selectedYear, honeyData, selectedOption);
+    })
 }
 
 function drawUSA(honeyData, mapJson) {
@@ -141,9 +175,9 @@ function drawUSA(honeyData, mapJson) {
         .attr('class', 'state')
 };
 
-function update(year, honeyData) {
+function update(year, honeyData, attribute) {
     const nestedData = d3.group(honeyData, d => d.Year);
-    const domain = nestedData.get(year).map(d => d['Honey producing colonies']);
+    const domain = nestedData.get(year).map(d => d[attribute]);
     const colorScale = d3.scaleLinear()
         .domain(d3.extent(domain))
         .range(['#ffeca7', '#985b10']);
@@ -153,7 +187,7 @@ function update(year, honeyData) {
             if (d.properties.data) {
                 const honeyData = d.properties.data;
                 if (honeyData && honeyData.get(year) && honeyData.get(year).length > 0) {
-                    return colorScale(honeyData.get(year)[0]['Honey producing colonies']);
+                    return colorScale(honeyData.get(year)[0][attribute]);
                 } else {
                     return "rgb(213,222,217)";
                 }
